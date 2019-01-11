@@ -445,15 +445,15 @@ function getVisibleElements(scrollEl, views, sortByVisibility = false,
     return elementRight > left;
   }
 
-  let visible = [], view, element;
+  let visible = [], view, element, numViews = views.length;
   let currentHeight, viewHeight, viewBottom, hiddenHeight;
   let currentWidth, viewWidth, viewRight, hiddenWidth;
   let percentVisible;
-  let firstVisibleElementInd = views.length === 0 ? 0 :
+  let firstVisibleElementInd = numViews === 0 ? 0 :
     binarySearchFirstItem(views, horizontal ? isElementRightAfterViewLeft :
                                               isElementBottomAfterViewTop);
 
-  if (views.length > 0 && !horizontal) {
+  if (numViews > 0 && firstVisibleElementInd < numViews && !horizontal) {
     // In wrapped scrolling (or vertical scrolling with spreads), with some page
     // sizes, isElementBottomAfterViewTop doesn't satisfy the binary search
     // condition: there can be pages with bottoms above the view top between

@@ -1918,7 +1918,7 @@ class WorkerTransport {
             fontRegistry,
           });
 
-          this.fontLoader.bind([font]).then(() => {
+          this.fontLoader.bind(font).then(() => {
             this.commonObjs.resolve(id, font);
           });
           break;

@@ -663,6 +663,10 @@ var PDFDocument = (function PDFDocumentClosure() {
       });
     },
 
+    fontFallback: function PDFDocument_fontFallback(id, handler) {
+      return this.catalog.fontFallback(id, handler);
+    },
+
     cleanup: function PDFDocument_cleanup() {
       return this.catalog.cleanup();
     },

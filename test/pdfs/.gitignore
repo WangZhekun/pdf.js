@@ -38,6 +38,7 @@
 !issue7406.pdf
 !issue7426.pdf
 !issue7439.pdf
+!issue7847_radial.pdf
 !issue7446.pdf
 !issue7492.pdf
 !issue7544.pdf
@@ -72,6 +73,23 @@
 !issue9458.pdf
 !issue9915_reduced.pdf
 !issue9940.pdf
+!issue10388_reduced.pdf
+!issue10438_reduced.pdf
+!issue10529.pdf
+!issue10542_reduced.pdf
+!issue10665_reduced.pdf
+!issue11016_reduced.pdf
+!issue11045.pdf
+!bug1057544.pdf
+!issue11150_reduced.pdf
+!issue6127.pdf
+!issue11242_reduced.pdf
+!issue11279.pdf
+!issue11362.pdf
+!issue13325_reduced.pdf
+!issue11578_reduced.pdf
+!issue11651.pdf
+!issue11878.pdf
 !bad-PageLabels.pdf
 !decodeACSuccessive.pdf
 !filled-background.pdf
@@ -231,6 +249,7 @@
 !bug1028735.pdf
 !bug1046314.pdf
 !bug1065245.pdf
+!issue6769.pdf
 !bug1151216.pdf
 !bug1175962.pdf
 !bug1020226.pdf
@@ -287,6 +306,8 @@
 !issue5481.pdf
 !issue5567.pdf
 !issue5701.pdf
+!issue6769_no_matrix.pdf
+!issue12007_reduced.pdf
 !issue5896.pdf
 !issue5909.pdf
 !issue6010_1.pdf
@@ -299,6 +320,7 @@
 !bug852992_reduced.pdf
 !issue6298.pdf
 !issue6889.pdf
+!issue11473.pdf
 !bug1001080.pdf
 !issue6108.pdf
 !issue6113.pdf

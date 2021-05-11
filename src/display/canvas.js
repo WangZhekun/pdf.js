@@ -1154,16 +1154,31 @@ var CanvasGraphics = (function CanvasGraphicsClosure() {
       // For stroke we want to temporarily change the global alpha to the
       // stroking alpha.
       ctx.globalAlpha = this.current.strokeAlpha;
-      if (strokeColor && strokeColor.hasOwnProperty('type') &&
-          strokeColor.type === 'Pattern') {
-        // for patterns, we transform to pattern space, calculate
-        // the pattern, call stroke, and restore to user space
-        ctx.save();
-        ctx.strokeStyle = strokeColor.getPattern(ctx, this);
-        ctx.stroke();
-        ctx.restore();
-      } else {
-        ctx.stroke();
+      if (this.contentVisible) {
+        if (typeof strokeColor === "object" && strokeColor.getPattern) {
+          const lineWidth = this.getSinglePixelWidth();
+          ctx.save();
+          ctx.strokeStyle = strokeColor.getPattern(ctx, this);
+          // Prevent drawing too thin lines by enforcing a minimum line width.
+          ctx.lineWidth = Math.max(lineWidth, this.current.lineWidth);
+          ctx.stroke();
+          ctx.restore();
+        } else {
+          const lineWidth = this.getSinglePixelWidth();
+          if (lineWidth < 0 && -lineWidth >= this.current.lineWidth) {
+            // The current transform will transform a square pixel into a
+            // parallelogram where both heights are lower than 1 and not equal.
+            ctx.save();
+            ctx.resetTransform();
+            ctx.lineWidth = Math.round(this._combinedScaleFactor);
+            ctx.stroke();
+            ctx.restore();
+          } else {
+            // Prevent drawing too thin lines by enforcing a minimum line width.
+            ctx.lineWidth = Math.max(lineWidth, this.current.lineWidth);
+            ctx.stroke();
+          }
+        }
       }
       if (consumePath) {
         this.consumePath();
@@ -1184,9 +1199,6 @@ var CanvasGraphics = (function CanvasGraphicsClosure() {
 
       if (isPatternFill) {
         ctx.save();
-        if (this.baseTransform) {
-          ctx.setTransform.apply(ctx, this.baseTransform);
-        }
         ctx.fillStyle = fillColor.getPattern(ctx, this);
         needRestore = true;
       }

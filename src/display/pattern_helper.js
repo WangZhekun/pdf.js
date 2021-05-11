@@ -15,31 +15,92 @@
 
 import { FormatError, info, Util } from '../shared/util';
 
-var ShadingIRs = {};
+const ShadingIRs = {};
+
+let svgElement;
+
+// TODO: remove this when Firefox ESR supports DOMMatrix.
+function createMatrix(matrix) {
+  if (typeof DOMMatrix !== "undefined") {
+    return new DOMMatrix(matrix);
+  }
+  if (!svgElement) {
+    svgElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  }
+  return svgElement.createSVGMatrix(matrix);
+}
+
+function applyBoundingBox(ctx, bbox) {
+  if (!bbox || typeof Path2D === "undefined") {
+    return;
+  }
+  const width = bbox[2] - bbox[0];
+  const height = bbox[3] - bbox[1];
+  const region = new Path2D();
+  region.rect(bbox[0], bbox[1], width, height);
+  ctx.clip(region);
+}
 
 ShadingIRs.RadialAxial = {
   fromIR: function RadialAxial_fromIR(raw) {
-    var type = raw[1];
-    var colorStops = raw[2];
-    var p0 = raw[3];
-    var p1 = raw[4];
-    var r0 = raw[5];
-    var r1 = raw[6];
+    const type = raw[1];
+    const bbox = raw[2];
+    const colorStops = raw[3];
+    const p0 = raw[4];
+    const p1 = raw[5];
+    const r0 = raw[6];
+    const r1 = raw[7];
+    const matrix = raw[8];
+
     return {
-      type: 'Pattern',
-      getPattern: function RadialAxial_getPattern(ctx) {
-        var grad;
-        if (type === 'axial') {
-          grad = ctx.createLinearGradient(p0[0], p0[1], p1[0], p1[1]);
-        } else if (type === 'radial') {
-          grad = ctx.createRadialGradient(p0[0], p0[1], r0, p1[0], p1[1], r1);
+      getPattern: function RadialAxial_getPattern(ctx, owner, shadingFill) {
+        const tmpCanvas = owner.cachedCanvases.getCanvas(
+          "pattern",
+          ctx.canvas.width,
+          ctx.canvas.height,
+          true
+        );
+
+        const tmpCtx = tmpCanvas.context;
+        tmpCtx.clearRect(0, 0, tmpCtx.canvas.width, tmpCtx.canvas.height);
+        tmpCtx.beginPath();
+        tmpCtx.rect(0, 0, tmpCtx.canvas.width, tmpCtx.canvas.height);
+
+        if (!shadingFill) {
+          tmpCtx.setTransform.apply(tmpCtx, owner.baseTransform);
+          if (matrix) {
+            tmpCtx.transform.apply(tmpCtx, matrix);
+          }
+        } else {
+          tmpCtx.setTransform.apply(tmpCtx, ctx.mozCurrentTransform);
+        }
+        applyBoundingBox(tmpCtx, bbox);
+
+        let grad;
+        if (type === "axial") {
+          grad = tmpCtx.createLinearGradient(p0[0], p0[1], p1[0], p1[1]);
+        } else if (type === "radial") {
+          grad = tmpCtx.createRadialGradient(
+            p0[0],
+            p0[1],
+            r0,
+            p1[0],
+            p1[1],
+            r1
+          );
         }
 
         for (var i = 0, ii = colorStops.length; i < ii; ++i) {
           var c = colorStops[i];
           grad.addColorStop(c[0], c[1]);
         }
-        return grad;
+
+        tmpCtx.fillStyle = grad;
+        tmpCtx.fill();
+
+        const pattern = ctx.createPattern(tmpCanvas.canvas, "repeat");
+        pattern.setTransform(createMatrix(ctx.mozCurrentTransformInverse));
+        return pattern;
       },
     };
   },
@@ -377,19 +438,17 @@ var TilingPattern = (function TilingPatternClosure() {
 
       graphics.transform(dimx.scale, 0, 0, dimy.scale, 0, 0);
 
-      // transform coordinates to pattern space
-      graphics.transform(1, 0, 0, 1, -x0, -y0);
-
       this.clipBbox(graphics, bbox, x0, y0, x1, y1);
+
+      graphics.baseTransform = graphics.ctx.mozCurrentTransform.slice();
 
       graphics.executeOperatorList(operatorList);
 
-      this.ctx.transform(1, 0, 0, 1, x0, y0);
-
-      // Rescale canvas so that the ctx.createPattern call generates a pattern
-      // with the desired size.
-      this.ctx.scale(1 / dimx.scale, 1 / dimy.scale);
-      return tmpCanvas.canvas;
+      return {
+        canvas: tmpCanvas.canvas,
+        scaleX: dimx.scale,
+        scaleY: dimy.scale,
+      };
     },
 
     getSizeAndScale:
@@ -444,15 +503,34 @@ var TilingPattern = (function TilingPatternClosure() {
         }
       },
 
-    getPattern: function TilingPattern_getPattern(ctx, owner) {
+    getPattern: function TilingPattern_getPattern(ctx, owner, shadingFill) {
       ctx = this.ctx;
       // PDF spec 8.7.2 NOTE 1: pattern's matrix is relative to initial matrix.
-      ctx.setTransform.apply(ctx, this.baseTransform);
-      ctx.transform.apply(ctx, this.matrix);
+      let matrix = ctx.mozCurrentTransformInverse;
+      if (!shadingFill) {
+        matrix = Util.transform(matrix, owner.baseTransform);
+        if (this.matrix) {
+          matrix = Util.transform(matrix, this.matrix);
+        }
+      }
 
       var temporaryPatternCanvas = this.createPatternCanvas(owner);
 
-      return ctx.createPattern(temporaryPatternCanvas, 'repeat');
+      let domMatrix = createMatrix(matrix);
+      // Rescale and so that the ctx.createPattern call generates a pattern with
+      // the desired size.
+      domMatrix = domMatrix.scale(
+        1 / temporaryPatternCanvas.scaleX,
+        1 / temporaryPatternCanvas.scaleY
+      );
+
+      const pattern = ctx.createPattern(
+        temporaryPatternCanvas.canvas,
+        "repeat"
+      );
+      pattern.setTransform(domMatrix);
+
+      return pattern;
     },
   };
 

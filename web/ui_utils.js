@@ -136,12 +136,21 @@ function watchScroll(viewAreaElement, callback) {
  * Helper function to parse query string (e.g. ?param1=value&parm2=...).
  */
 function parseQueryString(query) {
+  var index = query.indexOf('?')
+  var innerQuery
+  if(index > -1) { // url的query参数中有参数值为地址，且包含query参数
+    innerQuery = query.substring(index)
+    query = query.substring(0, index)
+  }
   var parts = query.split('&');
-  var params = {};
+  var params = Object.create(null);
   for (var i = 0, ii = parts.length; i < ii; ++i) {
     var param = parts[i].split('=');
     var key = param[0].toLowerCase();
     var value = param.length > 1 ? param[1] : null;
+    if(innerQuery && i === ii - 1) {
+      value += innerQuery
+    }
     params[decodeURIComponent(key)] = decodeURIComponent(value);
   }
   return params;

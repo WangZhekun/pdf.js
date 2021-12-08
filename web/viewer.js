@@ -648,7 +648,7 @@ var PDFViewerApplication = {
     }
 
     var url = this.url.split('#')[0];
-    var filename = getPDFFileNameFromURL(url);
+    var filename = this.contentDispositionFilename || getPDFFileNameFromURL(url);
     var downloadManager = new DownloadManager();
     downloadManager.onerror = function (err) {
       // This error won't really be helpful because it's likely the
@@ -995,6 +995,7 @@ var PDFViewerApplication = {
       var info = data.info, metadata = data.metadata;
       self.documentInfo = info;
       self.metadata = metadata;
+      self.contentDispositionFilename = data.contentDispositionFilename;
 
       // Provides some basic debug information
       console.log('PDF ' + pdfDocument.fingerprint + ' [' +

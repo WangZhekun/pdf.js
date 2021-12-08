@@ -18,20 +18,21 @@
 
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
-    define('pdfjs/core/chunked_stream', ['exports', 'pdfjs/shared/util'],
+    define('pdfjs/core/chunked_stream', ['exports', 'pdfjs/shared/util', 'pdfjs/core/network_util'],
       factory);
   } else if (typeof exports !== 'undefined') {
-    factory(exports, require('../shared/util.js'));
+    factory(exports, require('../shared/util.js'), require('./network_util.js'));
   } else {
-    factory((root.pdfjsCoreChunkedStream = {}), root.pdfjsSharedUtil);
+    factory((root.pdfjsCoreChunkedStream = {}), root.pdfjsSharedUtil, root.pdfjsCoreNetworkUtil);
   }
-}(this, function (exports, sharedUtil) {
+}(this, function (exports, sharedUtil, coreNetworkUtil) {
 
 var MissingDataException = sharedUtil.MissingDataException;
 var assert = sharedUtil.assert;
 var createPromiseCapability = sharedUtil.createPromiseCapability;
 var isInt = sharedUtil.isInt;
 var isEmptyObj = sharedUtil.isEmptyObj;
+var extractFilenameFromHeader = coreNetworkUtil.extractFilenameFromHeader;
 
 var ChunkedStream = (function ChunkedStreamClosure() {
   function ChunkedStream(length, chunkSize, manager) {
@@ -304,7 +305,10 @@ var ChunkedStreamManager = (function ChunkedStreamManagerClosure() {
         withCredentials: args.withCredentials
       });
       this.sendRequest = function ChunkedStreamManager_sendRequest(begin, end) {
-        this.networkManager.requestRange(begin, end, {
+        var xhrId = this.networkManager.requestRange(begin, end, {
+          onHeadersReceived: function onHeadersReceived() {
+            this.networkManager._filename = extractFilenameFromHeader(this.networkManager.getRequestXhr(xhrId).getResponseHeader('Content-Disposition'));
+          },
           onDone: this.onReceiveData.bind(this),
           onProgress: this.onProgress.bind(this)
         });

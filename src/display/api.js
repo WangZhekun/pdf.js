@@ -1526,6 +1526,7 @@ var WorkerTransport = (function WorkerTransportClosure() {
         var loadingTask = this.loadingTask;
         var pdfDocument = new PDFDocumentProxy(pdfInfo, this, loadingTask);
         this.pdfDocument = pdfDocument;
+        this._filename = data.pdfInfo._filename
         loadingTask._capability.resolve(pdfDocument);
       }, this);
 
@@ -1829,11 +1830,13 @@ var WorkerTransport = (function WorkerTransportClosure() {
     },
 
     getMetadata: function WorkerTransport_getMetadata() {
+      var self = this
       return this.messageHandler.sendWithPromise('GetMetadata', null).
         then(function transportMetadata(results) {
         return {
           info: results[0],
-          metadata: (results[1] ? new Metadata(results[1]) : null)
+          metadata: (results[1] ? new Metadata(results[1]) : null),
+          contentDispositionFilename: (self._filename || null),
         };
       });
     },

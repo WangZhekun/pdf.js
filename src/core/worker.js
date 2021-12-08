@@ -19,18 +19,18 @@
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
     define('pdfjs/core/worker', ['exports', 'pdfjs/shared/util',
-      'pdfjs/core/primitives', 'pdfjs/core/pdf_manager', 'pdfjs/shared/global'],
+      'pdfjs/core/primitives', 'pdfjs/core/pdf_manager', 'pdfjs/shared/global', 'pdfjs/core/network_util'],
       factory);
   } else if (typeof exports !== 'undefined') {
     factory(exports, require('../shared/util.js'), require('./primitives.js'),
-      require('./pdf_manager.js'), require('../shared/global.js'));
+      require('./pdf_manager.js'), require('../shared/global.js'), require('./network_util.js'));
   } else {
     factory((root.pdfjsCoreWorker = {}), root.pdfjsSharedUtil,
       root.pdfjsCorePrimitives, root.pdfjsCorePdfManager,
-      root.pdfjsSharedGlobal);
+      root.pdfjsSharedGlobal, root.pdfjsCoreNetworkUtil);
   }
 }(this, function (exports, sharedUtil, corePrimitives, corePdfManager,
-                  sharedGlobal) {
+                  sharedGlobal, coreNetworkUtil) {
 
 var UNSUPPORTED_FEATURES = sharedUtil.UNSUPPORTED_FEATURES;
 var InvalidPDFException = sharedUtil.InvalidPDFException;
@@ -51,6 +51,7 @@ var LocalPdfManager = corePdfManager.LocalPdfManager;
 var NetworkPdfManager = corePdfManager.NetworkPdfManager;
 var globalScope = sharedGlobal.globalScope;
 var PDFJS = sharedGlobal.PDFJS;
+var extractFilenameFromHeader = coreNetworkUtil.extractFilenameFromHeader;
 
 var WorkerTask = (function WorkerTaskClosure() {
   function WorkerTask(name) {
@@ -163,6 +164,7 @@ var WorkerMessageHandler = PDFJS.WorkerMessageHandler = {
             numPages: results[0],
             fingerprint: results[1],
             encrypted: !!results[2],
+            _filename: pdfManager.networkManager._filename,
           };
           loadDocumentCapability.resolve(doc);
         },
@@ -219,6 +221,10 @@ var WorkerMessageHandler = PDFJS.WorkerMessageHandler = {
           }
 
           var fullRequestXhr = networkManager.getRequestXhr(fullRequestXhrId);
+
+          networkManager._filename = extractFilenameFromHeader(fullRequestXhr.getResponseHeader('Content-Disposition'));
+
+
           if (fullRequestXhr.getResponseHeader('Accept-Ranges') !== 'bytes') {
             return;
           }
@@ -336,7 +342,10 @@ var WorkerMessageHandler = PDFJS.WorkerMessageHandler = {
         networkManager.abortRequest(fullRequestXhrId);
       };
 
-      return pdfManagerCapability.promise;
+      return pdfManagerCapability.promise.then(function (pdfManager){
+        pdfManager.networkManager = networkManager;
+        return pdfManager;
+      });
     }
 
     var setupDoc = function(data) {

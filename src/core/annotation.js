@@ -598,7 +598,7 @@ class WidgetAnnotation extends Annotation {
     data.annotationType = AnnotationType.WIDGET;
     data.fieldName = this._constructFieldName(dict);
     data.fieldValue = getInheritableProperty({ dict, key: 'V',
-                                               getArray: true, });
+                                               getArray: true, }); // TODO
     data.alternativeText = stringToPDFString(dict.get('TU') || '');
     data.defaultAppearance = getInheritableProperty({ dict, key: 'DA', }) || '';
     let fieldType = getInheritableProperty({ dict, key: 'FT', });
@@ -615,7 +615,7 @@ class WidgetAnnotation extends Annotation {
 
     // Hide signatures because we cannot validate them.
     if (data.fieldType === 'Sig') {
-      this.setFlags(AnnotationFlag.HIDDEN);
+      this.setFlags(AnnotationFlag.HIDDEN); // 设置签名的标注实例为不可渲染
     }
   }
 

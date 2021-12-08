@@ -364,10 +364,17 @@ var WorkerMessageHandler = {
       setVerbosityLevel(data.verbosity);
     });
 
+    // 监听主线程的 GetDocRequest 事件
     handler.on('GetDocRequest', function wphSetupDoc(data) {
       return WorkerMessageHandler.createDocumentHandler(data, port);
     });
   },
+  /**
+   * 创建文档句柄
+   * @param {Object} docParams 来自主线程的配置对象
+   * @param {Object} port 当前worker线程的全局对象
+   * @returns
+   */
   createDocumentHandler(docParams, port) {
     // This context is actually holds references on pdfManager and handler,
     // until the latter is destroyed.
@@ -390,7 +397,7 @@ var WorkerMessageHandler = {
     var docId = docParams.docId;
     var docBaseUrl = docParams.docBaseUrl;
     var workerHandlerName = docParams.docId + '_worker';
-    var handler = new MessageHandler(workerHandlerName, docId, port);
+    var handler = new MessageHandler(workerHandlerName, docId, port); // TODO 这里的 MessageHandler 实例 postMessage 时出错了
 
     // Ensure that postMessage transfers are always correctly enabled/disabled,
     // to prevent "DataCloneError" in browsers without transfers support.
@@ -865,7 +872,7 @@ var WorkerMessageHandler = {
   },
   initializeFromPort(port) {
     var handler = new MessageHandler('worker', 'main', port);
-    WorkerMessageHandler.setup(handler, port);
+    WorkerMessageHandler.setup(handler, port); // TODO
     handler.send('ready', null);
   },
 };
@@ -878,7 +885,7 @@ function isMessagePort(maybePort) {
 // Worker thread (and not node.js)?
 if (typeof window === 'undefined' && !isNodeJS() &&
     typeof self !== 'undefined' && isMessagePort(self)) {
-  WorkerMessageHandler.initializeFromPort(self);
+  WorkerMessageHandler.initializeFromPort(self); // self 是Web Worker的全局对象
 }
 
 export {

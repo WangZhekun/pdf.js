@@ -33,6 +33,12 @@ var Page = (function PageClosure() {
   var DEFAULT_USER_UNIT = 1.0;
   var LETTER_SIZE_MEDIABOX = [0, 0, 612, 792];
 
+  /**
+   * 判断标注是否可渲染
+   * @param {Annotation} annotation 标注实例
+   * @param {string}} intent 展示方式
+   * @returns
+   */
   function isAnnotationRenderable(annotation, intent) {
     return (intent === 'display' && annotation.viewable) ||
            (intent === 'print' && annotation.printable);
@@ -179,6 +185,11 @@ var Page = (function PageClosure() {
       });
     },
 
+    /**
+     * 获取文档各页面及其标注的operator list
+     * @param {*} param0
+     * @returns
+     */
     getOperatorList({ handler, task, intent, renderInteractiveForms, }) {
       var contentStreamPromise = this.pdfManager.ensure(this,
                                                         'getContentStream');
@@ -226,6 +237,7 @@ var Page = (function PageClosure() {
 
       // Fetch the page's annotations and add their operator lists to the
       // page's operator list to render them.
+      // 合并页面和标注的operator list
       return Promise.all([pageListPromise, this._parsedAnnotations]).then(
           function ([pageOpList, annotations]) {
         if (annotations.length === 0) {
@@ -291,6 +303,11 @@ var Page = (function PageClosure() {
       });
     },
 
+    /**
+     * 转换 annotations 为标注实例，筛选可渲染的标注实例，并提取其公共属性
+     * @param {*} intent
+     * @returns
+     */
     getAnnotationsData(intent) {
       return this._parsedAnnotations.then(function(annotations) {
         let annotationsData = [];
@@ -308,13 +325,16 @@ var Page = (function PageClosure() {
                     this._getInheritableProperty('Annots') || []);
     },
 
+    /**
+     * 转换 annotations 为 Annotation 实例
+     */
     get _parsedAnnotations() {
       const parsedAnnotations =
         this.pdfManager.ensure(this, 'annotations').then(() => {
           const annotationRefs = this.annotations;
           const annotationPromises = [];
           for (let i = 0, ii = annotationRefs.length; i < ii; i++) {
-            annotationPromises.push(AnnotationFactory.create(
+            annotationPromises.push(AnnotationFactory.create( // 创建标注
               this.xref, annotationRefs[i], this.pdfManager, this.idFactory));
           }
 

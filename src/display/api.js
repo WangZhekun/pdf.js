@@ -394,6 +394,7 @@ function _fetchDocument(worker, source, pdfDataRangeTransport, docId) {
     source.length = pdfDataRangeTransport.length;
     source.initialData = pdfDataRangeTransport.initialData;
   }
+  // 向 worker 发送 GetDocRequest 事件
   return worker.messageHandler.sendWithPromise('GetDocRequest', {
     docId,
     apiVersion: (typeof PDFJSDev !== 'undefined' ?

@@ -64,6 +64,12 @@ function finalize(promise) {
   return Promise.resolve(promise).catch(() => {});
 }
 
+/**
+ * 全局对象comObj所在的线程与其他线程的通信的代理
+ * @param {*} sourceName
+ * @param {*} targetName
+ * @param {*} comObj
+ */
 function MessageHandler(sourceName, targetName, comObj) {
   this.sourceName = sourceName;
   this.targetName = targetName;
@@ -104,7 +110,16 @@ function MessageHandler(sourceName, targetName, comObj) {
         Promise.resolve().then(function () {
           return action[0].call(action[1], data.data);
         }).then((result) => {
-          comObj.postMessage({
+          /**
+           * 出问题的 action 是 GetAnnotations ，action[0]是
+          function({ pageIndex, intent, }) {
+            return pdfManager.getPage(pageIndex).then(function(page) {
+              return page.getAnnotationsData(intent);
+            });
+          }
+          result 是数组，数组元素是 Annotations 实例的 data 属性，异常原因是 data.fieldValue 的值无法无法序列化
+           */
+          comObj.postMessage({ // TODO Uncaught (in promise) DOMException: Failed to execute 'postMessage' on 'DedicatedWorkerGlobalScope': #<Promise> could not be cloned.
             sourceName,
             targetName,
             isReply: true,
@@ -129,6 +144,7 @@ function MessageHandler(sourceName, targetName, comObj) {
       throw new Error(`Unknown action from worker: ${data.action}`);
     }
   };
+  // comObj线程监听来自其他线程的消息
   comObj.addEventListener('message', this._onComObjOnMessage);
 }
 

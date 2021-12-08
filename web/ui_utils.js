@@ -184,13 +184,19 @@ function watchScroll(viewAreaElement, callback) {
  * Helper function to parse query string (e.g. ?param1=value&parm2=...).
  */
 function parseQueryString(query) {
-  let parts = query.split('&');
-  let params = Object.create(null);
+  const queryParams = query.split('?');
+  query = queryParams[0];
+  const parts = query.split('&');
+  const params = Object.create(null);
   for (let i = 0, ii = parts.length; i < ii; ++i) {
-    let param = parts[i].split('=');
-    let key = param[0].toLowerCase();
+    const param = parts[i].split('=');
+    const key = param[0].toLowerCase();
     let value = param.length > 1 ? param[1] : null;
-    params[decodeURIComponent(key)] = decodeURIComponent(value);
+    if (ii === i + 1) {
+      value += '?' + (queryParams[1] ? queryParams[1] : '');
+    }
+    params[decodeURIComponent(key)] =
+      ii === i + 1 && queryParams[1] ? value : decodeURIComponent(value);
   }
   return params;
 }

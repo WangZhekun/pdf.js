@@ -573,8 +573,9 @@ var WidgetAnnotation = (function WidgetAnnotationClosure() {
 
     // Hide unsupported Widget signatures.
     if (data.fieldType === 'Sig') {
-      warn('unimplemented annotation type: Widget signature');
-      this.setFlags(AnnotationFlag.HIDDEN);
+      data.fieldValue = null; // 这个字段的值在序列化时会报错 TODO 为什么
+      // warn('unimplemented annotation type: Widget signature');
+      // this.setFlags(AnnotationFlag.HIDDEN);
     }
 
     // Building the full field name by collecting the field and

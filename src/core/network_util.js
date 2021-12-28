@@ -34,13 +34,13 @@
    * @return {string} Filename, if found in the Content-Disposition header.
    */
   function getFilenameFromContentDispositionHeader(contentDisposition) {
-    let needsEncodingFixup = true;
+    var needsEncodingFixup = true;
 
     // filename*=ext-value ("ext-value" from RFC 5987, referenced by RFC 6266).
-    let tmp = toParamRegExp('filename\\*', 'i').exec(contentDisposition);
+    var tmp = toParamRegExp('filename\\*', 'i').exec(contentDisposition);
     if (tmp) {
       tmp = tmp[1];
-      let filename = rfc2616unquote(tmp);
+      var filename = rfc2616unquote(tmp);
       filename = unescape(filename);
       filename = rfc5987decode(filename);
       filename = rfc2047decode(filename);
@@ -53,7 +53,7 @@
     tmp = rfc2231getparam(contentDisposition);
     if (tmp) {
       // RFC 2047, section
-      let filename = rfc2047decode(tmp);
+      var filename = rfc2047decode(tmp);
       return fixupEncoding(filename);
     }
 
@@ -61,7 +61,7 @@
     tmp = toParamRegExp('filename', 'i').exec(contentDisposition);
     if (tmp) {
       tmp = tmp[1];
-      let filename = rfc2616unquote(tmp);
+      var filename = rfc2616unquote(tmp);
       filename = rfc2047decode(filename);
       return fixupEncoding(filename);
     }
@@ -86,9 +86,9 @@
           return value;
         }
         try {
-          let decoder = new TextDecoder(encoding, { fatal: true, });
-          let bytes = new Array(value.length);
-          for (let i = 0; i < value.length; ++i) {
+          var decoder = new TextDecoder(encoding, { fatal: true, });
+          var bytes = new Array(value.length);
+          for (var i = 0; i < value.length; ++i) {
             bytes[i] = value.charCodeAt(i);
           }
           value = decoder.decode(new Uint8Array(bytes));
@@ -120,12 +120,14 @@
       return value;
     }
     function rfc2231getparam(contentDisposition) {
-      let matches = [], match;
+      var matches = [], match;
       // Iterate over all filename*n= and filename*n*= with n being an integer
       // of at least zero. Any non-zero number must not start with '0'.
-      let iter = toParamRegExp('filename\\*((?!0\\d)\\d+)(\\*?)', 'ig');
+      var iter = toParamRegExp('filename\\*((?!0\\d)\\d+)(\\*?)', 'ig');
       while ((match = iter.exec(contentDisposition)) !== null) {
-        let [, n, quot, part] = match;
+        var n = match[1]
+        var quot = match[2]
+        var part = match[3]
         n = parseInt(n, 10);
         if (n in matches) {
           // Ignore anything after the invalid second filename*0.
@@ -136,13 +138,14 @@
         }
         matches[n] = [quot, part];
       }
-      let parts = [];
-      for (let n = 0; n < matches.length; ++n) {
+      var parts = [];
+      for (var n = 0; n < matches.length; ++n) {
         if (!(n in matches)) {
           // Numbers must be consecutive. Truncate when there is a hole.
           break;
         }
-        let [quot, part] = matches[n];
+        var quot = matches[n][0];
+        var part = matches[n][1];
         part = rfc2616unquote(part);
         if (quot) {
           part = unescape(part);
@@ -156,10 +159,10 @@
     }
     function rfc2616unquote(value) {
       if (value.charAt(0) === '"') {
-        let parts = value.slice(1).split('\\"');
+        var parts = value.slice(1).split('\\"');
         // Find the first unescaped " and terminate there.
-        for (let i = 0; i < parts.length; ++i) {
-          let quotindex = parts[i].indexOf('"');
+        for (var i = 0; i < parts.length; ++i) {
+          var quotindex = parts[i].indexOf('"');
           if (quotindex !== -1) {
             parts[i] = parts[i].slice(0, quotindex);
             parts.length = i + 1; // Truncates and stop the iteration.
@@ -172,17 +175,17 @@
     }
     function rfc5987decode(extvalue) {
       // Decodes "ext-value" from RFC 5987.
-      let encodingend = extvalue.indexOf('\'');
+      var encodingend = extvalue.indexOf('\'');
       if (encodingend === -1) {
         // Some servers send "filename*=" without encoding 'language' prefix,
         // e.g. in https://github.com/Rob--W/open-in-browser/issues/26
         // Let's accept the value like Firefox (57) (Chrome 62 rejects it).
         return extvalue;
       }
-      let encoding = extvalue.slice(0, encodingend);
-      let langvalue = extvalue.slice(encodingend + 1);
+      var encoding = extvalue.slice(0, encodingend);
+      var langvalue = extvalue.slice(encodingend + 1);
       // Ignore language (RFC 5987 section 3.2.1, and RFC 6266 section 4.1 ).
-      let value = langvalue.replace(/^[^']*'/, '');
+      var value = langvalue.replace(/^[^']*'/, '');
       return textdecode(encoding, value);
     }
     function rfc2047decode(value) {
@@ -229,7 +232,7 @@
 
   function extractFilenameFromHeader(contentDisposition) {
     if (contentDisposition) {
-      let filename = getFilenameFromContentDispositionHeader(contentDisposition);
+      var filename = getFilenameFromContentDispositionHeader(contentDisposition);
       if (/\.pdf$/i.test(filename)) {
         return filename;
       }

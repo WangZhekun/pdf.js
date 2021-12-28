@@ -1830,13 +1830,13 @@ var WorkerTransport = (function WorkerTransportClosure() {
     },
 
     getMetadata: function WorkerTransport_getMetadata() {
-      var self = this
+      var self = this;
       return this.messageHandler.sendWithPromise('GetMetadata', null).
         then(function transportMetadata(results) {
         return {
           info: results[0],
           metadata: (results[1] ? new Metadata(results[1]) : null),
-          contentDispositionFilename: (self._filename || null),
+          contentDispositionFilename: (self._filename || null)
         };
       });
     },

@@ -317,8 +317,12 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
       PDFImage.buildImage(self.handler, self.xref, resources, image, inline).
         then(function(imageObj) {
           var imgData = imageObj.createImageData(/* forceRGBA = */ false);
-          self.handler.send('obj', [objId, self.pageIndex, 'Image', imgData],
-            [imgData.data.buffer]);
+          try{
+            self.handler.send('obj', [objId, self.pageIndex, 'Image', imgData],
+              [imgData.data.buffer]);
+          } catch(e) { // fix: IE10 Unable to decode image: DataCloneError
+            self.handler.send('obj', [objId, self.pageIndex, 'Image', imgData]);
+          }
         }).then(undefined, function (reason) {
           warn('Unable to decode image: ' + reason);
           self.handler.send('obj', [objId, self.pageIndex, 'Image', null]);

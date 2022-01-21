@@ -1172,6 +1172,7 @@ var Font = (function FontClosure() {
           data[i] = this[i];
         }
       }
+      delete data.widths;
       return data;
     },
 

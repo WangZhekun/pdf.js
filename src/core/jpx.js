@@ -1133,6 +1133,11 @@ var JpxImage = (function JpxImageClosure() {
             zeroBitPlanesTree = new TagTree(width, height);
             precinct.inclusionTree = inclusionTree;
             precinct.zeroBitPlanesTree = zeroBitPlanesTree;
+            for (let l = 0; l < layerNumber; l++) {
+              if (readBits(1) !== 0) {
+                throw new JpxError("Invalid tag tree");
+              }
+            }
           }
 
           if (inclusionTree.reset(codeblockColumn, codeblockRow, layerNumber)) {

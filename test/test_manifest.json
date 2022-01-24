@@ -4032,5 +4032,14 @@
       "rounds": 1,
       "link": false,
       "type": "eq"
-    }
+    },
+    {  "id": "issue12579",
+      "file": "pdfs/issue12579.pdf",
+      "md5": "a56f6c7b6ebe0008bd6215b9a4dc3cca",
+      "link": true,
+      "firstPage": 3,
+      "lastPage": 3,
+      "rounds": 1,
+      "type": "eq"
+   }
 ]

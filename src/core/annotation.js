@@ -615,7 +615,8 @@ class WidgetAnnotation extends Annotation {
 
     // Hide signatures because we cannot validate them.
     if (data.fieldType === 'Sig') {
-      this.setFlags(AnnotationFlag.HIDDEN); // 设置签名的标注实例为不可渲染
+      data.fieldValue = null; // 这个字段的值在序列化时会报错
+      // this.setFlags(AnnotationFlag.HIDDEN); // 设置签名的标注实例为不可渲染
     }
   }
 

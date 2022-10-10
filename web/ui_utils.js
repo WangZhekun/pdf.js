@@ -144,7 +144,6 @@ function parseQueryString(query) {
     var param = parts[i].split('=');
     var key = param[0].toLowerCase();
     var value = param.length > 1 ? param[1] : null;
-    params[decodeURIComponent(key)] = decodeURIComponent(value);
     if(ii === i + 1) {
       value += '?' + (queryParams[1] ? queryParams[1] : '')
     }

@@ -541,18 +541,18 @@ var FlateStream = (function FlateStreamClosure() {
       }
       blockLen |= (b << 8);
       if ((b = str.getByte()) === -1) {
-        throw new FormatError('Bad block header in flate stream');
+        // throw new FormatError('Bad block header in flate stream');
       }
       var check = b;
       if ((b = str.getByte()) === -1) {
-        throw new FormatError('Bad block header in flate stream');
+        // throw new FormatError('Bad block header in flate stream');
       }
       check |= (b << 8);
       if (check !== (~blockLen & 0xffff) &&
           (blockLen !== 0 || check !== 0)) {
         // Ignoring error for bad "empty" block (see issue 1277)
-        throw new FormatError(
-          'Bad uncompressed block length in flate stream');
+        // throw new FormatError(
+          // 'Bad uncompressed block length in flate stream');
       }
 
       this.codeBuf = 0;

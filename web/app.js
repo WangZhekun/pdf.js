@@ -1055,9 +1055,9 @@ let PDFViewerApplication = {
         for (let i = 0, ii = javaScript.length; i < ii; i++) {
           let js = javaScript[i];
           if (js && regex.test(js)) {
-            setTimeout(function() {
-              window.print();
-            });
+            // setTimeout(function() {
+            //   window.print();
+            // });
             return;
           }
         }

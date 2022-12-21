@@ -488,7 +488,27 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
         nativeDecoder: nativeImageDecoder,
         pdfFunctionFactory: this.pdfFunctionFactory,
       }).then((imageObj) => {
-        var imgData = imageObj.createImageData(/* forceRGBA = */ false);
+        var imgData;
+        var docInfo = this.pdfManager.pdfDocument.documentInfo;
+        var isSuwellSigImg =
+          imageObj.width !== imageObj.height &&
+          !imageObj.smask &&
+          !imageObj.mask &&
+          !imageObj.needsDecode &&
+          imageObj.colorSpace &&
+          imageObj.colorSpace.name === 'DeviceRGB' &&
+          docInfo &&
+          docInfo.Producer === 'Suwell OFD convertor' &&
+          docInfo.Author === 'China Tax';
+        if (isSuwellSigImg) {
+          imgData = imageObj.createImageData(/* forceRGBA = */true);
+          for (var i = 0, ii = imageObj.drawWidth * imageObj.drawHeight * 4; i < ii; i++) {
+            var r = imgData.data[i++], g = imgData.data[i++], b = imgData.data[i++];
+            imgData.data[i] = r & g & b === 255 ? 0 : imgData.data[i];
+          }
+        } else {
+          imgData = imageObj.createImageData(/* forceRGBA = */false);
+        }
         this.handler.send('obj', [objId, this.pageIndex, 'Image', imgData],
           [imgData.data.buffer]);
       }).catch((reason) => {

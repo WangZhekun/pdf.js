@@ -1218,7 +1218,8 @@ var XRef = (function XRefClosure() {
           trailers.push(position);
           position += skipUntil(buffer, position, startxrefBytes);
         } else if ((m = objRegExp.exec(token))) {
-          if (typeof this.entries[m[1]] === 'undefined') {
+          const num = m[1] | 0, gen = m[2] | 0;
+          if (!this.entries[num] || this.entries[num].gen === gen) {
             this.entries[m[1]] = {
               offset: position - stream.start,
               gen: m[2] | 0,

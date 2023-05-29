@@ -305,9 +305,10 @@ var ChunkedStreamManager = (function ChunkedStreamManagerClosure() {
         withCredentials: args.withCredentials
       });
       this.sendRequest = function ChunkedStreamManager_sendRequest(begin, end) {
+        var _networkManager = this.networkManager
         var xhrId = this.networkManager.requestRange(begin, end, {
           onHeadersReceived: function onHeadersReceived() {
-            this.networkManager._filename = extractFilenameFromHeader(this.networkManager.getRequestXhr(xhrId).getResponseHeader('Content-Disposition'));
+            _networkManager._filename = extractFilenameFromHeader(_networkManager.getRequestXhr(xhrId).getResponseHeader('Content-Disposition'));
           },
           onDone: this.onReceiveData.bind(this),
           onProgress: this.onProgress.bind(this)

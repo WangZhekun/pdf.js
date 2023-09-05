@@ -386,6 +386,8 @@ var JpxImage = (function JpxImageClosure() {
               length = tile.dataEnd - position;
               parseTilePackets(context, data, position, length);
               break;
+            case 0xFF53: // Coding style component (COC)
+              warn('JPX: Codestream code 0xFF53 (COC) is not implemented.');
             case 0xFF55: // Tile-part lengths, main header (TLM)
             case 0xFF57: // Packet length, main header (PLM)
             case 0xFF58: // Packet length, tile-part header (PLT)
@@ -393,9 +395,6 @@ var JpxImage = (function JpxImageClosure() {
               length = readUint16(data, position);
               // skipping content
               break;
-            case 0xFF53: // Coding style component (COC)
-              throw new Error('Codestream code 0xFF53 (COC) is ' +
-                              'not implemented');
             default:
               throw new Error('Unknown codestream code: ' + code.toString(16));
           }
@@ -1135,7 +1134,7 @@ var JpxImage = (function JpxImageClosure() {
             precinct.zeroBitPlanesTree = zeroBitPlanesTree;
             for (let l = 0; l < layerNumber; l++) {
               if (readBits(1) !== 0) {
-                throw new JpxError("Invalid tag tree");
+                throw new JpxError('Invalid tag tree');
               }
             }
           }

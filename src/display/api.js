@@ -1958,7 +1958,9 @@ class WorkerTransport {
             };
             img.src = imageData;
           }).then((img) => {
-            pageProxy.objs.resolve(id, img);
+            return img.decode().then(function () {
+              pageProxy.objs.resolve(id, img);
+            });
           });
         case 'Image':
           pageProxy.objs.resolve(id, imageData);

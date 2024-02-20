@@ -164,7 +164,7 @@ var WorkerMessageHandler = PDFJS.WorkerMessageHandler = {
             numPages: results[0],
             fingerprint: results[1],
             encrypted: !!results[2],
-            _filename: pdfManager.networkManager._filename,
+            _filename: pdfManager.networkManager ? pdfManager.networkManager._filename : null,
           };
           loadDocumentCapability.resolve(doc);
         },

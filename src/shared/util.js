@@ -653,7 +653,7 @@ function isLittleEndian() {
 function isEvalSupported() {
   try {
     new Function(''); // eslint-disable-line no-new, no-new-func
-    return true;
+    return false;
   } catch (e) {
     return false;
   }

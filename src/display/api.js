@@ -293,7 +293,7 @@ function getDocument(src) {
     params.maxImageSize = -1;
   }
   if (typeof params.isEvalSupported !== 'boolean') {
-    params.isEvalSupported = true;
+    params.isEvalSupported = false;
   }
   if (typeof params.disableFontFace !== 'boolean') {
     params.disableFontFace = apiCompatibilityParams.disableFontFace || false;

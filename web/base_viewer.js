@@ -625,7 +625,7 @@ class BaseViewer {
         case 'auto':
           // For pages in landscape mode, fit the page height to the viewer
           // *unless* the page would thus become too wide to fit horizontally.
-          let horizontalScale = isPortraitOrientation(currentPage) ?
+          let horizontalScale = isPortraitOrientation(currentPage) || currentPage.height < 0 ?
             pageWidthScale : Math.min(pageHeightScale, pageWidthScale);
           scale = Math.min(MAX_AUTO_SCALE, horizontalScale);
           break;

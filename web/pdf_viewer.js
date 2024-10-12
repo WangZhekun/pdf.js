@@ -444,7 +444,7 @@ var PDFViewer = (function pdfViewer() {
             scale = Math.min(pageWidthScale, pageHeightScale);
             break;
           case 'auto':
-            var isLandscape = (currentPage.width > currentPage.height);
+            var isLandscape = (currentPage.width > currentPage.height) && currentPage.height > 0;
             // For pages in landscape mode, fit the page height to the viewer
             // *unless* the page would thus become too wide to fit horizontally.
             var horizontalScale = isLandscape ?

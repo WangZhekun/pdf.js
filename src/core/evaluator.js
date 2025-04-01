@@ -22,7 +22,7 @@ import {
 import { CMapFactory, IdentityCMap } from './cmap';
 import { DecodeStream, Stream } from './stream';
 import {
-  Dict, isCmd, isDict, isEOF, isName, isRef, isStream, Name
+  Dict, isCmd, isDict, isEOF, isName, isRef, isStream, Name, Ref
 } from './primitives';
 import {
   ErrorFont, Font, FontFlags, getFontType, IdentityToUnicodeMap, ToUnicodeMap
